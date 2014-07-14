@@ -3,36 +3,14 @@ from Bio import SeqIO
 
 
 
-###### FUNCTIONS  #######
-        
-def parse_config():
-    config_params = [];
-    config = open('private/config', 'r') 
-    for line in (line for line in config if not line.startswith('###')):
-        line = line.rstrip('\n')
-        line = line.split("=")
-        config_params.append (line[1])
 
-    return config_params
-
-#####
-
-## Gather import configuration information from the config file
-params = parse_config() # retreive the params from the config file
-
-
-
-## Gather import configuration information from the config file
-params = parse_config() # retreive the params from the config file
 print "Please enter the name of your nucleotide file from Genbank."
-print "The script will look in %s (specified input location) for the file." % params[7]
 file_name = raw_input("Filename: ")
-full_file_name = "".join([params[7],file_name])
 print "Opening %s" % file_name
 
 ## Iterate through each record in the fasta file, parse out the important information and write that information to a csv file
-f = open(full_file_name,'r+') # nt fasta file
-csv_file = "".join([params[6],file_name,".csv"])
+f = open(file_name,'r+') # nt fasta file
+csv_file = "".join([file_name,".csv"])
 csv = open(csv_file, "w+") #output csv file
 
 count = 0
