@@ -116,7 +116,6 @@ def print_taxa_list (tree1_taxa, tree2_taxa, target1, target2, outstyle):
 
     
 
-synth_list_url = 'http://api.opentreeoflife.org/treemachine/v1/getSynthesisSourceList' # point where needed
 study_fetch_url = 'http://devapi.opentreeoflife.org/phylesystem/v1/study/' # point where needed
 
 if __name__ == "__main__":
