@@ -84,13 +84,11 @@ def get_otus_from_tree(tree_json, tree):
 def get_taxa(tree_otus, tree_study, study_otus):
 
     tree_taxa = []
-
+    
     for otu in tree_otus:
         otus_label = "otus" + tree_study
-        for taxon in study_otus[otus_label]['otuById'][otu]:
-            if study_otus[otus_label]['otuById'][otu].has_key('^ot:ottTaxonName'):
-                tree_taxa.append(study_otus[otus_label]['otuById'][otu]['^ot:ottTaxonName'])
-    
+        if study_otus[otus_label]['otuById'][otu].has_key('^ot:ottTaxonName'):
+            tree_taxa.append(study_otus[otus_label]['otuById'][otu]['^ot:ottTaxonName'])
     return tree_taxa
 
 def print_taxa_list (tree1_taxa, tree2_taxa, target1, target2, outstyle):
@@ -132,12 +130,13 @@ if __name__ == "__main__":
     tree1_json = get_tree(tree1_study, tree1)
     tree2_json = get_tree(tree2_study, tree2)
 
+
     tree1_otus = get_otus_from_tree(tree1_json, tree1)
     tree2_otus = get_otus_from_tree(tree2_json, tree2)
+    
 
     study1_otus = get_study_otus(tree1_study)
     study2_otus = get_study_otus(tree2_study)
-
 
     tree1_taxa = get_taxa(tree1_otus, tree1_study, study1_otus)
     tree2_taxa = get_taxa(tree2_otus, tree2_study, study2_otus)
@@ -146,8 +145,9 @@ if __name__ == "__main__":
     if outfile == '':
         if outstyle == 'all':
             print_taxa_list(tree1_taxa, tree2_taxa, target1, target2, outstyle)
-
         elif outstyle == 'unique':
+            print len(set(tree2_taxa))
+            print len(tree2_taxa)
             print_taxa_list(set(tree1_taxa), set(tree2_taxa), target1, target2, outstyle)
 
     else:
