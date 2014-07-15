@@ -57,38 +57,31 @@ def main(argv):
 
    return tree1, tree2, outstyle, outfile 
 
-def get_study_otus(study):
+def get_study_otus(study, source):
 
-    url = study_fetch_url + "pg_" + study + "/otus"
+    url = study_fetch_url + source + "_" + study + "/otus"
     response = requests.get(url)
     study_json = json.loads(response.text, object_hook=_decode_dict)
 
     return study_json
 
-def get_tree(study, tree):
-    
-    url = study_fetch_url + "pg_" + study + "/tree/" + tree
-    response = requests.get(url)
-    tree_json = json.loads(response.text, object_hook=_decode_dict)
-   
-    return tree_json 
 
-def get_otus_from_tree(tree_json, tree):
-    tree_otus = []
-    for node in tree_json[tree]['nodeById']:
-        if tree_json[tree]['nodeById'][node].has_key('@otu'):
-            tree_otus.append(tree_json[tree]['nodeById'][node]['@otu'])
-
-    return tree_otus
-
-def get_taxa(tree_otus, tree_study, study_otus):
+def get_taxa(tree_study, tree_id, study_otus, tree_study_source):
 
     tree_taxa = []
-    
-    for otu in tree_otus:
-        otus_label = "otus" + tree_study
-        if study_otus[otus_label]['otuById'][otu].has_key('^ot:ottTaxonName'):
-            tree_taxa.append(study_otus[otus_label]['otuById'][otu]['^ot:ottTaxonName'])
+    if tree_study_source == "pg": 
+         otu_label = "otus" + tree_study
+         for otu in study_otus[otu_label]['otuById']:
+            if study_otus[otu_label]['otuById'][otu].has_key('^ot:ottTaxonName'):
+                tree_taxa.append(study_otus[otu_label]['otuById'][otu]['^ot:ottTaxonName'])
+
+    elif tree_study_source == "ot":
+         otu_label = "otus" + tree_id[4:]
+         for otu in study_otus[otu_label]['otuById']:
+            if study_otus[otu_label]['otuById'][otu].has_key('^ot:ottTaxonName'):
+                tree_taxa.append(study_otus[otu_label]['otuById'][otu]['^ot:ottTaxonName'])   
+
+
     return tree_taxa
 
 def print_taxa_list (tree1_taxa, tree2_taxa, target1, target2, outstyle):
@@ -116,37 +109,30 @@ def print_taxa_list (tree1_taxa, tree2_taxa, target1, target2, outstyle):
 
     
 
-study_fetch_url = 'http://devapi.opentreeoflife.org/phylesystem/v1/study/' # point where needed
+study_fetch_url = 'http://api.opentreeoflife.org/phylesystem/v1/study/' # point where needed
 
 if __name__ == "__main__":
     
     target1, target2, outstyle, outfile = main(sys.argv[1:])
-    tree1_study =  target1.split("_")[0]
-    tree2_study = target2.split("_")[0]
-    tree1 = "tree" + target1.split("_")[1]
-    tree2 = "tree" + target2.split("_")[1]
+    tree1_study_source = target1.split("_")[0]
+    tree2_study_source = target2.split("_")[0]
+    tree1_study =  target1.split("_")[1]
+    tree2_study = target2.split("_")[1]
+    tree1 = "tree" + target1.split("_")[2]
+    tree2 = "tree" + target2.split("_")[2]
 
-    tree1_json = get_tree(tree1_study, tree1)
-    tree2_json = get_tree(tree2_study, tree2)
 
+    study1_otus = get_study_otus(tree1_study, tree1_study_source)
+    study2_otus = get_study_otus(tree2_study, tree2_study_source)
 
-    tree1_otus = get_otus_from_tree(tree1_json, tree1)
-    tree2_otus = get_otus_from_tree(tree2_json, tree2)
-    
-
-    study1_otus = get_study_otus(tree1_study)
-    study2_otus = get_study_otus(tree2_study)
-
-    tree1_taxa = get_taxa(tree1_otus, tree1_study, study1_otus)
-    tree2_taxa = get_taxa(tree2_otus, tree2_study, study2_otus)
+    tree1_taxa = get_taxa(tree1_study, tree1, study1_otus, tree1_study_source)
+    tree2_taxa = get_taxa(tree2_study, tree2, study2_otus, tree2_study_source)
 
 
     if outfile == '':
         if outstyle == 'all':
             print_taxa_list(tree1_taxa, tree2_taxa, target1, target2, outstyle)
         elif outstyle == 'unique':
-            print len(set(tree2_taxa))
-            print len(tree2_taxa)
             print_taxa_list(set(tree1_taxa), set(tree2_taxa), target1, target2, outstyle)
 
     else:
